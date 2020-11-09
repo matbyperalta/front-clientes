@@ -1,0 +1,43 @@
+<h1 class="subheader">Crear Clientes</h1>
+<form class="mid-form" #userForm="ngForm" (ngSubmit)="onSubmit()">
+    <div *ngIf="alert" class="alert alert-success alert-dismissible">
+        <strong>Operación Exitosa!</strong>
+        <button (click)="onCloseAlert()" type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+    <div class="form-group">
+        <label for="nombre">Nombres</label>
+        <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="cliente.nombre" 
+        required pattern="[A-Za-zÑñ ]+"/>
+        <small *ngIf="!nombre.valid && nombre.touched">
+            Campo requerido
+        </small>
+    </div>
+    <div class="form-group">
+        <label for="apellidos">Apellidos</label>
+        <input type="text" name="apellidos" #apellido="ngModel" [(ngModel)]="cliente.apellido" 
+        required pattern="[A-Za-zÑñ ]+"/>
+        <small *ngIf="!apellido.valid && apellido.touched">
+            Campo requerido
+        </small>
+    </div>
+    <div class="form-group">
+        <label for="telefono">Telefono</label>
+        <input type="text" name="telefono" #telefono="ngModel" [(ngModel)]="cliente.telefono" 
+        required pattern="[0-9 ]+"/>
+        <small *ngIf="!telefono.valid && telefono.touched">
+            Campo requerido
+        </small>
+    </div>
+    <div class="form-group">
+        <label for="direccion">Direción</label>
+        <input type="text" name="direccion" #direccion="ngModel" [(ngModel)]="cliente.direccion" 
+        required/>
+        <small *ngIf="!direccion.valid && direccion.touched">
+            Campo requerido
+        </small>
+    </div>
+    <div class="crearfix"></div>
+    <input type="submit" value="Guardar" class="btn btn-success" [disabled]="userForm.invalid">
+</form>

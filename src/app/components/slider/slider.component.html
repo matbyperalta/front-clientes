@@ -1,0 +1,15 @@
+<aside id="sidebar">
+  
+  <div id="search" class="sidebar-item">
+      <h3>Buscador</h3>
+      <p>Clientes</p>
+      <form #userForm="ngForm" (ngSubmit)="onSubmit()">
+          <input type="text" name="search" #search="ngModel" [(ngModel)]="buscar.nombre"/>
+          <input type="submit" name="submit" name="Buscar" class="btn"/>
+        </form>
+          <br/> 
+          <p>{{resultado}}</p>
+      
+  </div>
+</aside>
+<div class="clearfix"></div>
