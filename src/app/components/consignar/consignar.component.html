@@ -35,13 +35,14 @@
     <tr>
         <td>{{cuentaOut.numero}}</td>
         <td>{{cliente.nombre}} {{cliente.apellido}}</td>
-        <td>{{cuentaOut.saldo}}</td>
+        <td>{{cuentaOut.saldo | currency}}</td>
     </tr>
 </table>
 <div class="form-group">
     <label for="nombre">Valor Consignar</label>
-    <input type="text" name="movimiento" #movimiento="ngModel" [(ngModel)]="movimiento.tipo" required pattern="[0-9 ]+" />
-    <small *ngIf="!movimiento.valid && movimiento.touched">
+    {{movimiento.tipo}}
+    <input type="text" name="movimiento" #valor="ngModel" [(ngModel)]="movimiento.valor" currencyMask required pattern="[0-9 ]+" />
+    <small *ngIf="!valor.valid && valor.touched">
         Campo requerido
     </small>
 </div>

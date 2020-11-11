@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Cliente } from 'src/app/models/cliente';
 import { Cuenta } from 'src/app/models/cuenta';
-import { Movimiento } from 'src/app/models/movimiento';
+import { Movi } from 'src/app/models/movimiento';
 
 @Component({
   selector: 'app-consignar',
@@ -14,28 +14,44 @@ export class ConsignarComponent implements OnInit {
   public clientes: Cliente[];
   public cuentaIn: Cuenta;
   public cuentaOut: Cuenta;
-  public movimiento: Movimiento;
+  public movimiento: Movi;
 
   public cliente: Cliente;
   public mensaje: string;
   public alertWarning: boolean;
   public alertSuccess: boolean;
   public mostrarDatos: boolean;
-  public valorConsignar: number;
 
   constructor() {
     
     this.alertSuccess = false;
     this.alertWarning = false;
     this.mostrarDatos = false;
-    this.valorConsignar = 0;
+
+    this.cuentaIn = {
+      idCliente: null,
+      numero: null,
+      saldo: 0
+    }
+
+    this.cuentaOut = {
+      idCliente: null,
+      numero: null,
+      saldo: 0
+    }
+
+    this.cliente = new Cliente(0, '', '', '', '');
+    this.movimiento = {
+      id: null,
+      numeroCuenta: null,
+      valor: 0,
+      fecha: null,
+      tipo: null
+    }
   }
 
   ngOnInit() {
-    this.cuentaIn = new Cuenta(0, 0, 0);
-    this.cuentaOut = new Cuenta(0, 0, 0);
-    this.cliente = new Cliente(0, '', '', '', '');
-    this.movimiento = new Movimiento(0, 0, 0, new Date(),'');
+    
     if (sessionStorage.getItem('cuentas') != 'undefined' && sessionStorage.getItem('cuentas') != null) {
       this.cuentas = JSON.parse(sessionStorage.getItem('cuentas'));
     } else {
@@ -46,6 +62,7 @@ export class ConsignarComponent implements OnInit {
 
   onBuscarCuenta() {
     this.mostrarDatos = false;
+    console.log(this.movimiento.tipo);
     if (sessionStorage.getItem('cuentas') != 'undefined' && sessionStorage.getItem('cuentas') != null) {
       console.log(this.cuentaIn.numero);
       this.cuentas.forEach(element => {
@@ -71,8 +88,9 @@ export class ConsignarComponent implements OnInit {
   }
 
   onConsignar() {
-    this.cuentaOut.saldo = this.cuentaOut.saldo + this.movimiento.valor;
-    console.log(this.movimiento.tipo);
+    this.cuentaOut.saldo = +this.cuentaOut.saldo + +this.movimiento.valor;
+    console.log(this.cuentaIn);
+    console.log(this.cuentaOut.saldo);
     for (let index = 0; index < this.cuentas.length; index++) {
       const element = this.cuentas[index];
       if (this.cuentaOut.numero == element.numero) {
