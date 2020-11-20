@@ -1,12 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { Cliente } from 'src/app/models/cliente';
 import { Cuenta } from 'src/app/models/cuenta';
-import { Movi } from 'src/app/models/movimiento';
+import { Movimiento } from 'src/app/models/movimiento';
+import { MovimientoService } from '../../services/movimiento.service';
+import { CuentaService } from '../../services/cuenta.service';
+import { ClienteService } from '../../services/cliente.service';
+import { Transaccion } from 'src/app/models/transaccion';
 
 @Component({
   selector: 'app-retirar',
   templateUrl: './retirar.component.html',
-  styleUrls: ['./retirar.component.css']
+  styleUrls: ['./retirar.component.css'],
+  providers: [MovimientoService, CuentaService, ClienteService]
 })
 export class RetirarComponent implements OnInit {
 
@@ -14,30 +19,32 @@ export class RetirarComponent implements OnInit {
   public clientes: Cliente[];
   public cuentaIn: Cuenta;
   public cuentaOut: Cuenta;
-  public movimiento: Movi;
+  public movimiento: Movimiento;
 
   public cliente: Cliente;
   public mensaje: string;
   public alertWarning: boolean;
   public alertSuccess: boolean;
   public mostrarDatos: boolean;
+  public procesando: boolean;
+  private transaccion: Transaccion;
 
-  constructor() {
-    
+  constructor(private _movimientoservice: MovimientoService, private _cuentaservice: CuentaService, private _clienteservice: ClienteService) {
+
     this.alertSuccess = false;
     this.alertWarning = false;
     this.mostrarDatos = false;
 
     this.cuentaIn = {
-      idCliente: null,
-      numero: null,
-      saldo: 0
+      id: null,
+      saldo: null,
+      cliente: 0
     }
 
     this.cuentaOut = {
-      idCliente: null,
-      numero: null,
-      saldo: 0
+      id: null,
+      saldo: null,
+      cliente: 0
     }
 
     this.cliente = new Cliente(0, '', '', '', '');
@@ -51,57 +58,64 @@ export class RetirarComponent implements OnInit {
   }
 
   ngOnInit() {
-    
-    if (sessionStorage.getItem('cuentas') != 'undefined' && sessionStorage.getItem('cuentas') != null) {
-      this.cuentas = JSON.parse(sessionStorage.getItem('cuentas'));
-    } else {
-      this.mensaje = 'No hay cuentas creadas';
-      this.alertWarning = true
-    }
+
   }
 
   onBuscarCuenta() {
-    this.mostrarDatos = false;
-    console.log(this.movimiento.tipo);
-    if (sessionStorage.getItem('cuentas') != 'undefined' && sessionStorage.getItem('cuentas') != null) {
-      console.log(this.cuentaIn.numero);
-      this.cuentas.forEach(element => {
-        if (element.numero == this.cuentaIn.numero) {
-          this.cuentaOut = element;
+    this.procesando = true;
+    this._cuentaservice.getCuenta(this.cuentaIn.id).subscribe(data => {
+      if (data.codigo == 'OK') {
+        if (data.datos != null) {
+          this.cuentaOut = data.datos;
+
+          this._clienteservice.getCliente(this.cuentaOut.cliente).subscribe(datacliente => {
+            if (datacliente.codigo == 'OK') {
+              if (datacliente.datos != null) {
+                this.cliente = datacliente.datos;
+              }
+            }
+          })
+
           this.mostrarDatos = true;
-          console.log(this.cuentaOut);
+        } else {
+          this.mostrarDatos = false;
+          this.alertWarning = true;
+          this.mensaje = "No hay cuentas creadas";
         }
-      });
-
-      this.clientes = JSON.parse(sessionStorage.getItem('clientes'));
-      this.clientes.forEach(element => {
-        if (element.id == this.cuentaOut.idCliente) {
-          this.cliente = element;
-          console.log(this.cliente);
-        }
-      });
-
-    } else {
-      this.mensaje = 'No hay cuentas creadas';
-      this.alertWarning = true
-    }
-  }
-
-  onRetirar () {
-    this.cuentaOut.saldo = this.cuentaOut.saldo - this.movimiento.valor;
-    console.log(this.cuentaIn);
-    console.log(this.cuentaOut.saldo);
-    for (let index = 0; index < this.cuentas.length; index++) {
-      const element = this.cuentas[index];
-      if (this.cuentaOut.numero == element.numero) {
-        element.saldo = this.cuentaOut.saldo;
-        this.cuentas[index] = element;
-        sessionStorage.setItem('cuentas',JSON.stringify(this.cuentas));
       }
-    }
-    this.alertSuccess = true;
-    this.mensaje = 'Operación Exitosa!';
-    this.movimiento.valor = 0;
+      this.procesando = false;
+    })
   }
+
+  onRetirar() {
+    this.procesando = true;
+    console.log(this.procesando);
+    this.transaccion = new Transaccion(this.movimiento.valor, this.cuentaOut.id);
+    this._movimientoservice.retirar(this.transaccion).subscribe(data => {
+      if (data.codigo == 'OK') {
+        this.alertSuccess = true;
+        this.mensaje = 'Operación Exitosa!';
+      } else if (data.codigo == 'ERROR') {
+        this.alertWarning = true;
+        this.mensaje = data.mensaje;
+      }
+    })
+
+    this._cuentaservice.getCuenta(this.cuentaIn.id).subscribe(data => {
+      if (data.codigo == 'OK') {
+        if (data.datos != null) {
+          this.cuentaOut = data.datos;
+          this.mostrarDatos = false;
+        }
+      }
+    })
+
+    this.movimiento.valor = 0;
+    this.procesando = false;
+  }
+
+  onCloseAlert() {
+    this.alertWarning = false;
+    this.alertSuccess = false;
 
 }

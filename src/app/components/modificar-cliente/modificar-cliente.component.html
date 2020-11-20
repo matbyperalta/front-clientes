@@ -1,66 +1,83 @@
 <h1 class="subheader">Detalle Cliente</h1>
-<form class="mid-form" #userForm="ngForm" (ngSubmit)="onSubmit()">
-    <div *ngIf="alert" class="alert alert-success alert-dismissible">
-        <strong>Operación Exitosa!</strong>
-        <button (click)="onCloseAlert()" type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-      </div>
-    <div class="form-group">
-        <label for="nombre">Nombres</label>
-        <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="cliente.nombre" 
-        required pattern="[A-Za-zÑñ ]+"/>
-        <small *ngIf="!nombre.valid && nombre.touched">
-            Campo requerido
-        </small>
+<div *ngIf="procesando">
+    ...Procesando
+</div>
+<div *ngIf="!procesando">
+    <form class="mid-form" #userForm="ngForm" (ngSubmit)="onSubmit()">
+        <div *ngIf="exito" class="alert alert-success alert-dismissible">
+            <strong>Operación Exitosa!</strong>
+            <button (click)="onCloseAlert()" type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div *ngIf="error" class="alert alert-danger alert-dismissible">
+            <strong>Operación Fallida!</strong>{{respuestageneral.mensaje}}
+            <button (click)="onCloseAlert()" type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div *ngIf="advertencia" class="alert alert-warning alert-dismissible">
+            <strong>Advertencia!</strong> {{respuestageneral.mensaje}}
+            <button (click)="onCloseAlert()" type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="form-group">
+            <label for="nombres">Nombres</label>
+            <input type="text" name="nombres" #nombres="ngModel" [(ngModel)]="cliente.nombres" required
+                pattern="[A-Za-zÑñ ]+" />
+            <small *ngIf="!nombres.valid && nombres.touched">
+                Campo requerido
+            </small>
+        </div>
+        <div class="form-group">
+            <label for="apellidos">Apellidos</label>
+            <input type="text" name="apellidos" #apellidos="ngModel" [(ngModel)]="cliente.apellidos" required
+                pattern="[A-Za-zÑñ ]+" />
+            <small *ngIf="!apellidos.valid && apellidos.touched">
+                Campo requerido
+            </small>
+        </div>
+        <div class="form-group">
+            <label for="telefono">Telefono</label>
+            <input type="text" name="telefono" #telefono="ngModel" [(ngModel)]="cliente.telefono" required
+                pattern="[0-9 ]+" />
+            <small *ngIf="!telefono.valid && telefono.touched">
+                Campo requerido
+            </small>
+        </div>
+        <div class="form-group">
+            <label for="direccion">Direción</label>
+            <input type="text" name="direccion" #direccion="ngModel" [(ngModel)]="cliente.direccion" required />
+            <small *ngIf="!direccion.valid && direccion.touched">
+                Campo requerido
+            </small>
+        </div>
+        <div class="crearfix"></div>
+        <table>
+            <tr>
+                <td>
+                    <input type="submit" value="Modificar" class="btn btn-success" [disabled]="userForm.invalid">
+                </td>
+                <td>
+                    <input type="button" value="Eliminar" class="btn btn-success" (click)="eliminar()">
+                </td>
+                <td>
+                    <input type="button" value="Crear Cuenta" class="btn btn-success" (click)="crearCuenta()">
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div id="cuentas" *ngIf="cuentas">
+        <h2 class="subheader">Cuentas</h2>
+        <div *ngFor="let cuenta of cuentas">
+            <article>
+                <h2>Número:{{cuenta.id}}</h2>
+                <span>
+                    Saldo: {{cuenta.saldo | currency}}
+                </span>
+            </article>
+        </div>
+        <div class="crearfix"></div>
     </div>
-    <div class="form-group">
-        <label for="apellidos">Apellidos</label>
-        <input type="text" name="apellidos" #apellido="ngModel" [(ngModel)]="cliente.apellido" 
-        required pattern="[A-Za-zÑñ ]+"/>
-        <small *ngIf="!apellido.valid && apellido.touched">
-            Campo requerido
-        </small>
-    </div>
-    <div class="form-group">
-        <label for="telefono">Telefono</label>
-        <input type="text" name="telefono" #telefono="ngModel" [(ngModel)]="cliente.telefono" 
-        required pattern="[0-9 ]+"/>
-        <small *ngIf="!telefono.valid && telefono.touched">
-            Campo requerido
-        </small>
-    </div>
-    <div class="form-group">
-        <label for="direccion">Direción</label>
-        <input type="text" name="direccion" #direccion="ngModel" [(ngModel)]="cliente.direccion" 
-        required/>
-        <small *ngIf="!direccion.valid && direccion.touched">
-            Campo requerido
-        </small>
-    </div>
-    <div class="crearfix"></div>
-    <table>
-        <tr>
-            <td>
-                <input type="submit" value="Modificar" class="btn btn-success" [disabled]="userForm.invalid">
-            </td>
-            <td>
-                <input type="button" value="Eliminar" class="btn btn-success" (click)="eliminar()">
-            </td>
-            <td>
-                <input type="button" value="Crear Cuenta" class="btn btn-success" (click)="crearCuenta()">
-            </td>
-        </tr>
-    </table>
-</form>
-<div id="cuentas" *ngIf="cuentas">
-    <h2 class="subheader">Cuentas</h2>
-    <div *ngFor="let cuenta of cuentas">
-        <article > 
-            <h2>Número:{{cuenta.numero}}</h2>
-            <span>
-                Saldo: {{cuenta.saldo | currency}}
-            </span>
-          </article>
-    </div>
-    <div class="crearfix"></div>
+</div>

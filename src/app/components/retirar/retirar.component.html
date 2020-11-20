@@ -1,54 +1,60 @@
 <h1 class="subheader">Retirar</h1>
-<div *ngIf="alertSuccess" class="alert alert-success alert-dismissible">
-    <strong>{{mensaje}}</strong>
-    <button (click)="onCloseAlert()" type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
+<div *ngIf="procesando">
+    ...Procesando
 </div>
-<div *ngIf="alertWarning" class="alert alert-warning alert-dismissible">
-    <strong>{{mensaje}}</strong>
-    <button (click)="onCloseAlert()" type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-<form class="mid-form" #userForm="ngForm" (ngSubmit)="onBuscarCuenta()">
-    <div class="form-group">
-        <label for="nombre">Cuenta</label>
-        <input type="text" name="cuenta" #cuenta="ngModel" [(ngModel)]="cuentaIn.numero" required pattern="[0-9 ]+" />
-        <small *ngIf="!cuenta.valid && cuenta.touched">
-            Campo requerido
-        </small>
+<div *ngIf="!procesando">
+    <div *ngIf="alertSuccess" class="alert alert-success alert-dismissible">
+        <strong>{{mensaje}}</strong>
+        <button (click)="onCloseAlert()" type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
+    <div *ngIf="alertWarning" class="alert alert-warning alert-dismissible">
+        <strong>{{mensaje}}</strong>
+        <button (click)="onCloseAlert()" type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <form class="mid-form" #userForm="ngForm" (ngSubmit)="onBuscarCuenta()">
+        <div class="form-group">
+            <label for="nombre">Cuenta</label>
+            <input type="text" name="cuenta" #cuenta="ngModel" [(ngModel)]="cuentaIn.id" required pattern="[0-9 ]+" />
+            <small *ngIf="!cuenta.valid && cuenta.touched">
+                Campo requerido
+            </small>
+        </div>
+        <div class="crearfix"></div>
+        <input type="submit" value="Buscar" class="btn btn-success" [disabled]="userForm.invalid">
+    </form>
     <div class="crearfix"></div>
-    <input type="submit" value="Buscar" class="btn btn-success" [disabled]="userForm.invalid">
-</form>
-<div class="crearfix"></div>
-<div class="crearfix"></div>
-<form class="mid-form" #conForm="ngForm" (ngSubmit)="onRetirar()">
-<div *ngIf="mostrarDatos">
-    <table border="1"> 
-    <tr>
-        <td>Cuenta</td>
-        <td>Cliente</td>
-        <td>Saldo</td>
-    </tr>
-    <tr>
-        <td>{{cuentaOut.numero}}</td>
-        <td>{{cliente.nombre}} {{cliente.apellido}}</td>
-        <td>{{cuentaOut.saldo | currency}}</td>
-    </tr>
-</table>
-<div class="form-group">
-    <label for="nombre">Valor Consignar</label>
-    {{movimiento.tipo}}
-    <input type="text" name="movimiento" #valor="ngModel" [(ngModel)]="movimiento.valor" currencyMask required pattern="[0-9 ]+" />
-    <small *ngIf="!valor.valid && valor.touched">
-        Campo requerido
-    </small>
-</div>
-<input type="submit" value="Guardar" class="btn btn-success" [disabled]="conForm.invalid">
-</div>
+    <div class="crearfix"></div>
+    <form class="mid-form" #conForm="ngForm" (ngSubmit)="onRetirar()">
+        <div *ngIf="mostrarDatos">
+            <table border="1">
+                <tr>
+                    <td>Cuenta</td>
+                    <td>Cliente</td>
+                    <td>Saldo</td>
+                </tr>
+                <tr>
+                    <td>{{cuentaOut.id}}</td>
+                    <td>{{cliente.nombres}} {{cliente.apellidos}}</td>
+                    <td>{{cuentaOut.saldo | currency}}</td>
+                </tr>
+            </table>
+            <div class="form-group">
+                <label for="nombre">Valor Consignar</label>
+                {{movimiento.tipo}}
+                <input type="text" name="movimiento" #valor="ngModel" [(ngModel)]="movimiento.valor" currencyMask
+                    required pattern="[0-9 ]+" />
+                <small *ngIf="!valor.valid && valor.touched">
+                    Campo requerido
+                </small>
+            </div>
+            <input type="submit" value="Guardar" class="btn btn-success" [disabled]="conForm.invalid">
+        </div>
 
-<div class="crearfix"></div>
+        <div class="crearfix"></div>
 
-</form>
+    </form>
+</div>

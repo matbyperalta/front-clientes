@@ -1,4 +1,4 @@
-export class Movi{
+export class Movimiento{
     constructor(
         public id: number,
         public numeroCuenta: number,

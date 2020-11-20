@@ -1,47 +1,51 @@
 import { Component, OnInit } from '@angular/core';
 import { Cliente } from 'src/app/models/cliente';
+import { RespuestaGeneral } from 'src/app/services/respuestageneral';
+import { ClienteService } from '../../services/cliente.service';
 
 @Component({
   selector: 'app-crear-cliente',
   templateUrl: './crear-cliente.component.html',
-  styleUrls: ['./crear-cliente.component.css']
+  styleUrls: ['./crear-cliente.component.css'],
+  providers: [ClienteService]
 })
 export class CrearClienteComponent implements OnInit {
 
   public cliente: Cliente;
-  alert:boolean = false;
+  public respuestageneral: RespuestaGeneral;
+
+  exito:boolean = false;
+  error:boolean = false;
+  procesando:boolean = false;
   public clientes: Cliente[];
 
-  constructor() { 
+  constructor(
+    private _clienteservice : ClienteService
+  ) { 
     this.cliente = new Cliente(0,'','','','',);
+    this.respuestageneral = new RespuestaGeneral('','',null);
   }
 
   ngOnInit() {
   }
 
   onSubmit(){
-    
-    console.log(sessionStorage.getItem('clientes'));
-    if(sessionStorage.getItem('clientes') != 'undefined' && sessionStorage.getItem('clientes') != null){
-      this.clientes = JSON.parse(sessionStorage.getItem('clientes'));
-      this.cliente.id = this.clientes.length+1;
-      this.clientes.push(this.cliente);
-      sessionStorage.setItem('clientes',JSON.stringify(this.clientes));
-    }else{
-      this.clientes = [];
-      console.log(this.clientes);
-      this.cliente.id = 1;
-      this.clientes.push(this.cliente);
-      sessionStorage.setItem('clientes',JSON.stringify(this.clientes));
-    }
-    console.log(sessionStorage.getItem('clientes'));
-    this.cliente = new Cliente(0,'','','','',);
-    this.alert = true;
-
+    this.procesando = true;
+    this._clienteservice.crearCliente(this.cliente).subscribe(data => {
+      if(data.codigo == 'OK'){
+        this.exito = true;
+        this.cliente = new Cliente(0,'','','','',);
+      }else if(data.codigo == 'ERROR'){
+        this.error = true;
+        this.respuestageneral.mensaje = data.mensaje;
+      }
+      this.procesando = false;
+    })
   }
 
   onCloseAlert(){
-    this.alert = false;
+    this.exito = false;
+    this.error = false;
   }
 
 

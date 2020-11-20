@@ -1,11 +1,17 @@
 <h1>Listado de Clientes</h1>
-    <div id="articles" *ngIf="clientes">
+<div *ngIf="advertencia" class="alert alert-warning alert-dismissible">
+    <strong>Advertencia!</strong> No se encontro datos
+    <button (click)="onCloseAlert()" type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>    
+<div id="articles" *ngIf="clientes">
         <div *ngFor="let cliente of clientes, let i = index">
             <article class="article-item"> 
                 <div class="image-wrap">
                     <img src="https://image.freepik.com/vector-gratis/ilustracion-icono-dibujos-animados-cajero-masculino-concepto-icono-profesion-personas_138676-2123.jpg" alt="cliente"/>
                 </div>
-                <h2>{{cliente.nombre}} {{cliente.apellido}}</h2>
+                <h2>{{cliente.nombres}} {{cliente.apellidos}}</h2>
                 <span class="date">
                     Teléfono: {{cliente.telefono}}
                 </span>

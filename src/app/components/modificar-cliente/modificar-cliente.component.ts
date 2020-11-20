@@ -1,84 +1,128 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router} from '@angular/router'; 
+import { SimpleChanges } from '@angular/core/src/metadata/lifecycle_hooks';
+import { ActivatedRoute, Router } from '@angular/router';
+import { RespuestaGeneral } from 'src/app/services/respuestageneral';
 import { Cliente } from '../../models/cliente';
 import { Cuenta } from '../../models/cuenta';
+import { ClienteService } from '../../services/cliente.service';
+import { CuentaService } from '../../services/cuenta.service';
 
 @Component({
   selector: 'app-modificar-cliente',
   templateUrl: './modificar-cliente.component.html',
-  styleUrls: ['./modificar-cliente.component.css']
+  styleUrls: ['./modificar-cliente.component.css'],
+  providers: [ClienteService, CuentaService]
 })
 export class ModificarClienteComponent implements OnInit {
 
-  public id:string;
+  public id: string;
   public clientes: Cliente[];
   public cliente: Cliente;
-  alert:boolean = false;
+  error: boolean = false;
+  exito: boolean = false;
+  advertencia: boolean = false;
+  procesando: boolean = false;
   public cuentas: Cuenta[];
   public cuentasSesion: Cuenta[];
   cuenta: Cuenta;
 
-  constructor(private _route: ActivatedRoute, private _router: Router ) {
-    this.id =_route.snapshot.paramMap.get('id');
+  public respuestageneral: RespuestaGeneral;
+
+  constructor(private _route: ActivatedRoute, private _router: Router, private _clienteservice: ClienteService, private _cuentaservie: CuentaService) {
+    this.id = _route.snapshot.paramMap.get('id');
+    this.respuestageneral = new RespuestaGeneral('','',null);
   }
 
   ngOnInit() {
-    this.clientes = JSON.parse(sessionStorage.getItem('clientes'));
-    this.clientes.forEach(element => {
-      if(element.id == parseInt(this.id)){
-        this.cliente = element;
+    var idCliente: number = +this.id;
+    this.procesando = true;
+    this._clienteservice.getCliente(idCliente).subscribe(data => {
+      if(data.codigo == 'OK'){
+        this.cliente = data.datos;
+      }else if(data.codigo == 'ERROR'){
+        this.error = true;
+        this.respuestageneral.mensaje = data.mensaje;
       }
-    });
+    })
+
+    this._cuentaservie.getCuentas(idCliente).subscribe(data => {
+      if(data.codigo == 'OK'){
+        this.cuentas = data.datos;
+      }else if(data.codigo == 'ERROR'){
+        this.advertencia = true;
+        this.respuestageneral.mensaje = data.mensaje;
+      }
+      this.procesando = false;
+    })
     
-    if(sessionStorage.getItem('cuentas') != 'undefined' && sessionStorage.getItem('cuentas') != null){
-      this.cuentas = []
-        JSON.parse(sessionStorage.getItem('cuentas')).forEach(element => {
-        if(element.idCliente == parseInt(this.id)){
-          this.cuentas.push(element);
-        }
-      });
-      
-    }
 
   }
 
-  onSubmit(){
+  onSubmit() {
+    console.log("hola");
+    var idCliente: number = +this.id;
+    this.procesando = true;
+    this._clienteservice.putCliente(this.cliente, idCliente).subscribe(data => {
+      if(data.codigo == 'OK'){
+        this.exito = true;
+      }else if(data.codigo == 'ERROR'){
+        this.error = true;
+        this.respuestageneral.mensaje = data.mensaje;
+      }
+      this.procesando = false;
+    })
+  }
+
+  onCloseAlert() {
+    this.exito = false;
+    this.error = false;
+    this.advertencia = false;
+  }
+
+  eliminar() {
+    var idCliente: number = +this.id;
+    this.procesando = true;
+    this._clienteservice.deleteCliente(idCliente).subscribe(data => {
+      if(data.codigo == 'OK'){
+        this.exito = true;
+        this._router.navigate(['/home']);
+      }else if(data.codigo == 'ERROR'){
+        this.error = true;
+        this.respuestageneral.mensaje = data.mensaje;
+      }
+      this.procesando = false;
+    })
+  }
+
+  crearCuenta() {
+    var idCliente: number = +this.id;
+    this.procesando = true;
+    this.advertencia = false;
+    this.error = false;
+    this._cuentaservie.crearCuenta(idCliente).subscribe(data => {
+      if(data.codigo == 'OK'){
+        this.exito = true;
+      }else if(data.codigo == 'ERROR'){
+        this.error = true;
+        this.respuestageneral.mensaje = data.mensaje;
+      }
+    })
+
+    this._cuentaservie.getCuentas(idCliente).subscribe(data => {
+      console.log(data.datos);
+      if(data.codigo == 'OK'){
+        this.exito = true;
+        this.cuentas = data.datos;
+      }else if(data.codigo == 'ERROR'){
+        this.error = true;
+        this.respuestageneral.mensaje = data.mensaje;
+      }
+      this.procesando = false;
+    })
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    console.log("cambio");
     
-    console.log(sessionStorage.getItem('clientes'));
-    this.clientes[this.id] = this.cliente;
-    sessionStorage.setItem('clientes',JSON.stringify(this.clientes));
-    this.alert = true;
-
   }
-
-  onCloseAlert(){
-    this.alert = false;
-  }
-
-  eliminar(){
-    this.clientes.splice(parseInt(this.id),1);  
-    sessionStorage.setItem('clientes',JSON.stringify(this.clientes));
-    this._router.navigate(['/home']);
-  }
-
-  crearCuenta(){
-
-    if(sessionStorage.getItem('cuentas') != 'undefined' && sessionStorage.getItem('cuentas') != null){
-      this.cuenta = new Cuenta(this.cliente.id,JSON.parse(sessionStorage.getItem('cuentas')).length+1,0);
-      this.cuentas.push(this.cuenta);
-      
-      this.cuentasSesion = JSON.parse(sessionStorage.getItem('cuentas'));
-      this.cuentasSesion.push(this.cuenta);
-      sessionStorage.setItem('cuentas',JSON.stringify(this.cuentasSesion));
-      
-    }else{
-      this.cuenta = new Cuenta(this.cliente.id,1,0);
-      this.cuentas = [];
-      this.cuentas.push(this.cuenta);
-      this.cuentasSesion = this.cuentas;
-      sessionStorage.setItem('cuentas',JSON.stringify(this.cuentasSesion));
-    }
-
-  }
-
 }
