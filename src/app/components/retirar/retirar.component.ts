@@ -119,3 +119,4 @@ export class RetirarComponent implements OnInit {
     this.alertSuccess = false;
 
 }
+}

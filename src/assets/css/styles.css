@@ -26,12 +26,12 @@ body{
    width: 30%;
    font-size: 30px;
    float: left; 
-   margin-top: 35px;
+   margin-top: 5px;
 }
 #logo img {
     display: block;
     float: left;
-    height: 30px;
+    height: 110px;
 }
 #brand {
     display: block;
